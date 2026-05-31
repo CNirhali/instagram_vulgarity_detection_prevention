@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Guard Interactive Dry-Run Simulator</title>
+  <!-- Load popup styling -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup/popup.css">
+  <style>
+    /* Simulator Frame Layout */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      font-family: 'Inter', sans-serif;
+      background: #030712;
+      color: #f3f4f6;
+      overflow: hidden;
+    }
+
+    .split-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Left Side: Mock Instagram Feed */
+    .mock-ig-panel {
+      flex: 3;
+      height: 100%;
+      background: #000000;
+      border-right: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .ig-header-sim {
+      width: 100%;
+      max-width: 500px;
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    /* Instagram post styling */
+    .ig-post-card {
+      width: 100%;
+      max-width: 500px;
+      background: #000000;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      gap: 10px;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      padding: 2px;
+    }
+
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #374151;
+      border: 2px solid #000000;
+    }
+
+    .username {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .post-image-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #1e1b4b, #311042);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #a78bfa;
+      position: relative;
+    }
+
+    /* Mock Instagram Comment Section */
+    .post-comments-area {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid #1f2937;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .comment-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      position: relative;
+      min-height: 28px;
+    }
+
+    .comment-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #4b5563;
+      flex-shrink: 0;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-user {
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    /* Right Side: Mock Extension Popup Frame */
+    .mock-extension-panel {
+      flex: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 0%, #17112d, #030712 90%);
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .browser-frame {
+      width: 360px;
+      background: #090d16;
+      border: 1px solid #3b2b73;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(139, 92, 246, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .browser-header-bar {
+      height: 32px;
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+    }
+
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .window-dot.red { background: #ef4444; }
+    .window-dot.yellow { background: #f59e0b; }
+    .window-dot.green { background: #10b981; }
+
+    .browser-url-bar {
+      flex: 1;
+      height: 18px;
+      background: #1f2937;
+      border-radius: 4px;
+      margin: 0 20px;
+      font-size: 10px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="split-layout">
+    <!-- Left Side: Live Mock Instagram Page -->
+    <div class="mock-ig-panel">
+      <div class="ig-header-sim">Interactive Sandbox (Simulated Social Page)</div>
+      
+      <div class="ig-post-card">
+        <div class="post-header">
+          <div class="avatar"><div class="avatar-inner"></div></div>
+          <span class="username">wanderlust.adventures</span>
+        </div>
+        
+        <div class="post-image-placeholder">
+          🌅 Sunset View Sandbox Post
+        </div>
+
+        <div class="post-comments-area" id="post-comments">
+          <!-- Main post caption with target classes -->
+          <div class="comment-row">
+            <div class="comment-avatar" style="background-color: #6366f1;"></div>
+            <div class="comment-content">
+              <span class="comment-user">wanderlust.adventures</span>
+              <!-- Target class span._ap30 represents post captions -->
+              <span class="comment-text _ap30">Enjoying this stunning beach view. What an absolute crap weather yesterday but perfect today!</span>
+            </div>
+          </div>
+
+          <!-- Mock comment containing swear words -->
+          <div class="comment-row">
+            <div class="comment-avatar" style="background-color: #a855f7;"></div>
+            <div class="comment-content">
+              <span class="comment-user">john_traveler</span>
+              <!-- Target class span._a9zs represents comment content -->
+              <span class="comment-text _a9zs">This is a fucking beautiful shot! Wow!</span>
+            </div>
+          </div>
+
+          <!-- Mock comment containing insults/harassment -->
+          <div class="comment-row">
+            <div class="comment-avatar" style="background-color: #ec4899;"></div>
+            <div class="comment-content">
+              <span class="comment-user">toxic_hater</span>
+              <span class="comment-text _a9zs">Your photography skills are garbage. You are an idiot.</span>
+            </div>
+          </div>
+
+          <!-- Mock comment with hate speech -->
+          <div class="comment-row">
+            <div class="comment-avatar" style="background-color: #ef4444;"></div>
+            <div class="comment-content">
+              <span class="comment-user">angry_user99</span>
+              <span class="comment-text _a9zs">This place is trash, get out of here you coons retard!</span>
+            </div>
+          </div>
+
+          <!-- Benign comment -->
+          <div class="comment-row">
+            <div class="comment-avatar" style="background-color: #10b981;"></div>
+            <div class="comment-content">
+              <span class="comment-user">sarah_k</span>
+              <span class="comment-text _a9zs">Lovely colors, looks amazing.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Live Dashboard Popup Frame -->
+    <div class="mock-extension-panel">
+      <div class="ig-header-sim" style="text-align: center;">Social Guard Extension Popup</div>
+      <div class="browser-frame">
+        <div class="browser-header-bar">
+          <div class="window-dot red"></div>
+          <div class="window-dot yellow"></div>
+          <div class="window-dot green"></div>
+          <div class="browser-url-bar">Social Guard Settings Page</div>
+        </div>
+        
+        <!-- Render exact Popup DOM -->
+        <div class="dashboard" style="background: transparent;">
+          <header class="header">
+            <div class="logo-area">
+              <div class="shield-logo">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 10.93c-2.33 0-4.32-1.1-5.59-2.78C6.67 13.91 9.17 13 12 13s5.33.91 5.59 2.15c-1.27 1.68-3.26 2.78-5.59 2.78z"/>
+                </svg>
+                <div class="logo-glow"></div>
+              </div>
+              <div class="title-meta">
+                <h1>Social Guard</h1>
+                <span class="sub-title">Social Content Filter</span>
+              </div>
+            </div>
+            <div class="main-toggle-wrapper">
+              <label class="switch-glow">
+                <input type="checkbox" id="extension-toggle" checked>
+                <span class="slider-glow"></span>
+              </label>
+            </div>
+          </header>
+
+          <section class="stats-section">
+            <div class="stat-card">
+              <div class="stat-icon blocked">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-total">0</span>
+                <span class="stat-label">Total Blocked</span>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon score">
+                <svg viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm1-17h-2v6H5v2h6v6h2v-6h6v-2h-6V5z"/></svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-session">0</span>
+                <span class="stat-label">This Session</span>
+              </div>
+            </div>
+
+            <div class="stat-card full-width">
+              <div class="safety-score-wrapper">
+                <span class="stat-label">Safety Rating</span>
+                <div class="safety-bar-container">
+                  <div class="safety-bar" id="safety-bar" style="width: 100%;"></div>
+                </div>
+                <span class="safety-percentage" id="safety-percentage">100% Protected</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2>Filter Categories</h2>
+            <div class="control-row">
+              <div class="control-desc">
+                <span class="control-title">Profanity & Swearwords</span>
+                <span class="control-subtitle">Swear words, vulgarities, and offensive slangs</span>
+              </div>
+              <label class="switch-glow">
+                <input type="checkbox" id="cat-profanity" checked>
+                <span class="slider-glow"></span>
+              </label>
+            </div>
+
+            <div class="control-row">
+              <div class="control-desc">
+                <span class="control-title">Hate Speech & Slurs</span>
+                <span class="control-subtitle">Discriminatory, racial, and hateful language</span>
+              </div>
+              <label class="switch-glow">
+                <input type="checkbox" id="cat-hateSpeech" checked>
+                <span class="slider-glow"></span>
+              </label>
+            </div>
+
+            <div class="control-row">
+              <div class="control-desc">
+                <span class="control-title">Harassment & Bullying</span>
+                <span class="control-subtitle">Personal insults, threats, and toxic attacks</span>
+              </div>
+              <label class="switch-glow">
+                <input type="checkbox" id="cat-harassment" checked>
+                <span class="slider-glow"></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2>Redaction Method</h2>
+            <div class="segment-selector">
+              <button class="segment-btn active" id="btn-method-blur" data-method="blur">
+                <svg viewBox="0 0 24 24" width="14" height="14" class="segment-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                Sleek Blur Cover
+              </button>
+              <button class="segment-btn" id="btn-method-redact" data-method="redact">
+                <svg viewBox="0 0 24 24" width="14" height="14" class="segment-icon"><path d="M22 4H2v16h20V4zM4 18V6h16v12H4z M6 8h12v2H6V8zm0 4h8v2H6v-2z"/></svg>
+                Redact Text
+              </button>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2>Custom Blacklist</h2>
+            <div class="keyword-input-wrapper">
+              <input type="text" id="keyword-input" placeholder="Type custom word to block..." autocomplete="off">
+              <button id="btn-add-keyword">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              </button>
+            </div>
+            <div class="keyword-tags" id="keyword-tags">
+              <span class="no-tags">No custom keywords added yet.</span>
+            </div>
+          </section>
+
+          <footer class="footer">
+            <span class="status-indicator">
+              <span class="dot pulse"></span>
+              Active Guard Shield
+            </span>
+            <span class="version">v1.0.0</span>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. MOCK CHROME STORAGE API FOR SANDBOX (LOCAL STORAGE RE-ROUTING) -->
+  <script>
+    const storageKeyPrefix = 'sg_sim_';
+    const storageDefaults = {
+      enabled: true,
+      enabledCategories: {
+        profanity: true,
+        hateSpeech: true,
+        harassment: true
+      },
+      customBlacklist: [],
+      customWhitelist: [],
+      redactionMethod: 'blur',
+      totalBlocked: 0,
+      sessionBlocked: 0
+    };
+
+    // Store callbacks
+    const storageListeners = [];
+
+    window.chrome = {
+      storage: {
+        local: {
+          get: (keys, callback) => {
+            const result = {};
+            const keysToFetch = typeof keys === 'string' ? [keys] : (Array.isArray(keys) ? keys : Object.keys(keys || {}));
+            
+            keysToFetch.forEach(key => {
+              const val = localStorage.getItem(storageKeyPrefix + key);
+              if (val !== null) {
+                result[key] = JSON.parse(val);
+              } else {
+                result[key] = typeof keys === 'object' && !Array.isArray(keys) ? keys[key] : storageDefaults[key];
+              }
+            });
+
+            if (callback) callback(result);
+            return Promise.resolve(result);
+          },
+          set: (data, callback) => {
+            const changes = {};
+            for (const key in data) {
+              const oldValue = localStorage.getItem(storageKeyPrefix + key);
+              const newValue = data[key];
+              localStorage.setItem(storageKeyPrefix + key, JSON.stringify(newValue));
+              
+              changes[key] = {
+                oldValue: oldValue ? JSON.parse(oldValue) : undefined,
+                newValue: newValue
+              };
+            }
+
+            // Fire listeners
+            storageListeners.forEach(listener => {
+              listener(changes, 'local');
+            });
+
+            if (callback) callback();
+            return Promise.resolve();
+          }
+        },
+        onChanged: {
+          addListener: (listener) => {
+            storageListeners.push(listener);
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- 2. LOAD VULGARITY DETECTOR ENGINE AND ADAPTERS NATIVELY -->
+  <script src="core/detector.js"></script>
+  <script src="core/social-adapter.js"></script>
+  <script src="adapters/instagram.js"></script>
+  
+  <!-- 3. RUN INTERACTIVE SANDBOX ADAPTER CONTROLLER -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      let activeAdapter = null;
+      let detector = null;
+
+      // Get current local settings
+      const settings = await chrome.storage.local.get(storageDefaults);
+      
+      // Initialize core detector
+      detector = new VulgarityDetector(settings);
+
+      // Instantiate a live Instagram adapter targeted to our simulated comment boxes
+      activeAdapter = new InstagramAdapter(detector);
+      
+      // Override default initialize to prevent adding global MutationObserver on document body
+      // Instead, we target only the simulated comments area!
+      activeAdapter.startObservation = function() {
+        if (this.observer) return;
+        this.observer = new MutationObserver(() => {
+          this.scanAndFilter();
+        });
+        this.observer.observe(document.getElementById('post-comments'), {
+          childList: true,
+          subtree: true
+        });
+      };
+
+      // Set initial redaction method
+      activeAdapter.redactionMethod = settings.redactionMethod;
+      activeAdapter.setupStyles();
+      
+      // Start observer on the sandbox comments area
+      activeAdapter.startObservation();
+      activeAdapter.scanAndFilter();
+
+      // Listen to changes to redraw/reblur in sandbox
+      chrome.storage.onChanged.addListener(async (changes, namespace) => {
+        if (namespace !== 'local') return;
+
+        if (changes.enabled) {
+          const isEnabled = changes.enabled.newValue;
+          if (isEnabled) {
+            const fresh = await chrome.storage.local.get(storageDefaults);
+            detector.updateSettings(fresh);
+            activeAdapter.scanAndFilter();
+          } else {
+            // Restore comments
+            activeAdapter.cleanup();
+            // Re-instantiate so we can observer again when enabled
+            activeAdapter = new InstagramAdapter(detector);
+            activeAdapter.redactionMethod = settings.redactionMethod;
+            activeAdapter.startObservation();
+            
+            // Clean weak set to allow re-evaluation
+            activeAdapter.processedElements = new WeakSet();
+            // Restore raw HTML
+            document.querySelectorAll('._a9zs, ._ap30').forEach(el => {
+              if (el.dataset.originalText) {
+                el.textContent = el.dataset.originalText;
+              }
+            });
+          }
+        }
+
+        if (changes.redactionMethod) {
+          const newMethod = changes.redactionMethod.newValue;
+          activeAdapter.cleanup();
+          activeAdapter = new InstagramAdapter(detector);
+          activeAdapter.redactionMethod = newMethod;
+          activeAdapter.startObservation();
+          
+          // Restore text content to allow re-blur/re-redact
+          document.querySelectorAll('._a9zs, ._ap30').forEach(el => {
+            if (el.dataset.originalText) {
+              el.textContent = el.dataset.originalText;
+            }
+          });
+          activeAdapter.scanAndFilter();
+        }
+
+        if (changes.enabledCategories || changes.customBlacklist) {
+          const updatedCategories = changes.enabledCategories?.newValue || detector.enabledCategories;
+          const updatedBlacklist = changes.customBlacklist?.newValue || detector.customBlacklist;
+
+          detector.updateSettings({
+            enabledCategories: updatedCategories,
+            customBlacklist: updatedBlacklist
+          });
+
+          // Clean WeakSet & reset text contents to allow dynamic re-matching
+          activeAdapter.processedElements = new WeakSet();
+          document.querySelectorAll('._a9zs, ._ap30').forEach(el => {
+            if (el.dataset.originalText) {
+              el.textContent = el.dataset.originalText;
+            }
+          });
+          activeAdapter.scanAndFilter();
+        }
+      });
+
+      // Cache original text for sandbox reset operations
+      document.querySelectorAll('._a9zs, ._ap30').forEach(el => {
+        el.dataset.originalText = el.textContent;
+      });
+    });
+  </script>
+
+  <!-- 4. LOAD REAL EXTENSION POPUP CONTROLLER WITH NO MODIFICATIONS -->
+  <script src="popup/popup.js"></script>
+</body>
+</html>
