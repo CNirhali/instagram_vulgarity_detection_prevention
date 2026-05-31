@@ -2,7 +2,10 @@
 
 Social Guard is an ultra-fast, premium Manifest V3 Chrome Extension designed to detect, redact, and filter profanity, swearwords, hate speech, and toxic insults on social media platforms in real-time. Built with a highly scalable **plug-and-play platform adapter architecture**, it launches with native support for **Instagram** and **YouTube** but is engineered to easily extend to any other platform by dropping in a new adapter.
 
+![Social Guard Dashboard & Redaction Demo](social_guard_demo.webp)
+
 ---
+
 
 ## Key Features
 
